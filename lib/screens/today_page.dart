@@ -1,9 +1,14 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/food_entry.dart';
 import '../state/app_state.dart';
 import '../state/subscription_state.dart';
+import '../widgets/glass_card.dart';
+import '../widgets/macro_ring_dashboard.dart';
+import '../widgets/step_counter_widget.dart';
 import 'add_food_flow/select_meal_page.dart';
 import 'add_food_flow/serving_page.dart';
 import 'glp1/glp1_tracker_page.dart';
@@ -14,358 +19,281 @@ class TodayPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final state = context.watch<AppState>();
+    final cs = Theme.of(context).colorScheme;
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _DailyGoalCard(),
-        const SizedBox(height: 12),
-        Text('Quick add', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 2.6,
-          children: const [
-            _MealTile(
-                meal: MealType.breakfast,
-                icon: Icons.free_breakfast,
-                label: 'Breakfast'),
-            _MealTile(
-                meal: MealType.lunch, icon: Icons.lunch_dining, label: 'Lunch'),
-            _MealTile(
-                meal: MealType.dinner,
-                icon: Icons.dinner_dining,
-                label: 'Dinner'),
-            _MealTile(
-                meal: MealType.snack, icon: Icons.icecream, label: 'Snack'),
+    final caloriesLeft = state.caloriesGoal - state.caloriesEaten;
+    final progress = (state.caloriesEaten / state.caloriesGoal).clamp(0.0, 1.0);
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [cs.background, cs.surface],
+        ),
+      ),
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Macro Dashboard with gradient rings
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text('Calories Today',
+                      style: Theme.of(context).textTheme.titleLarge),
+                  const SizedBox(height: 16),
+                  const MacroRingDashboard(),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Step Counter
+            GlassCard(child: const StepCounterWidget()),
+
+            const SizedBox(height: 24),
+
+            // Quick Add Meals (gradient glass cards)
+            Text('Quick Add', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.6,
+              children: [
+                _QuickMealCard(
+                    icon: Icons.free_breakfast,
+                    label: 'Breakfast',
+                    colorStart: Colors.orange.shade300,
+                    colorEnd: Colors.deepOrange.shade600),
+                _QuickMealCard(
+                    icon: Icons.lunch_dining,
+                    label: 'Lunch',
+                    colorStart: Colors.green.shade300,
+                    colorEnd: Colors.teal.shade600),
+                _QuickMealCard(
+                    icon: Icons.dinner_dining,
+                    label: 'Dinner',
+                    colorStart: Colors.purple.shade300,
+                    colorEnd: Colors.indigo.shade600),
+                _QuickMealCard(
+                    icon: Icons.icecream,
+                    label: 'Snack',
+                    colorStart: Colors.pink.shade300,
+                    colorEnd: Colors.redAccent.shade700),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // GLP-1 Tracker Tile
+            _Glp1Tile(),
+
+            const SizedBox(height: 24),
+            GlassCard(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text('Water Intake',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 16),
+                  _AnimatedWaterTracker(
+                      cupsDrunk: state.waterCups,
+                      goal: 8), // Replace with your state
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Empty state or logged foods list...
+            if (state.foodEntries.isEmpty)
+              Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.restaurant_menu,
+                        size: 80, color: cs.primary.withOpacity(0.5)),
+                    const SizedBox(height: 16),
+                    Text('No foods logged yet.\nAdd your first meal!',
+                        textAlign: TextAlign.center),
+                  ],
+                ),
+              )
+            else
+              // Your food list here...
+              const Text('Your meals today...'),
           ],
         ),
-        const SizedBox(height: 12),
-        const _WaterCard(),
-        const SizedBox(height: 12),
-        _Glp1Tile(),
-        const SizedBox(height: 12),
-        Text('Today', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        const _MealSection(meal: MealType.breakfast),
-        const _MealSection(meal: MealType.lunch),
-        const _MealSection(meal: MealType.dinner),
-        const _MealSection(meal: MealType.snack),
-        if (s.todaysEntries.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 16),
-            child: Text('No foods logged yet. Add your first meal 👇'),
-          ),
-      ],
+      ),
     );
   }
 }
 
-class _MealTile extends StatelessWidget {
-  final MealType meal;
+class _QuickMealCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color colorStart;
+  final Color colorEnd;
 
-  const _MealTile({
-    required this.meal,
-    required this.icon,
-    required this.label,
-  });
+  const _QuickMealCard(
+      {required this.icon,
+      required this.label,
+      required this.colorStart,
+      required this.colorEnd});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (_) => SelectMealPage(preselected: meal)),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
+    return GestureDetector(
+      onTap: () {
+        // Navigate to add food flow
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [colorStart, colorEnd]),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black12, blurRadius: 8, offset: Offset(0, 4))
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: Colors.white),
+            const SizedBox(height: 8),
+            Text(label,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedWaterTracker extends StatefulWidget {
+  final int cupsDrunk;
+  final int goal;
+  final VoidCallback? onUpdate; // Optional callback if not using direct state
+
+  const _AnimatedWaterTracker({
+    required this.cupsDrunk,
+    required this.goal,
+    this.onUpdate,
+  });
+
+  @override
+  State<_AnimatedWaterTracker> createState() => _AnimatedWaterTrackerState();
+}
+
+class _AnimatedWaterTrackerState extends State<_AnimatedWaterTracker> {
+  @override
+  Widget build(BuildContext context) {
+    final progress = widget.cupsDrunk / widget.goal;
+    final cs = Theme.of(context).colorScheme;
+
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            // Optional: toggle or increment on whole tracker tap
+          },
+          child: Stack(
+            alignment: Alignment.bottomCenter,
             children: [
-              Icon(icon),
-              const SizedBox(width: 10),
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-              const Spacer(),
-              const Icon(Icons.chevron_right),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.cyan.withOpacity(0.4)),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                ),
+              ),
+              ClipRRect(
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(24)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeOutCubicEmphasized,
+                  height: 180 * progress.clamp(0.0, 1.0),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.cyan.shade600,
+                        Colors.blueAccent.shade300
+                      ],
+                      stops: const [0.0, 1.0],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _WaterCard extends StatelessWidget {
-  const _WaterCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final cups = s.dayLog.waterCups;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('Water', style: Theme.of(context).textTheme.titleMedium),
-                const Spacer(),
-                Text('$cups/8 cups',
-                    style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: List.generate(8, (i) {
-                final selected = i < cups;
-                return FilterChip(
-                  label: Text('${i + 1}'),
-                  selected: selected,
-                  onSelected: (v) =>
-                      context.read<AppState>().setWaterCups(v ? i + 1 : i),
-                );
-              }),
-            ),
-          ],
+        const SizedBox(height: 16),
+        Text(
+          '${widget.cupsDrunk} / ${widget.goal} cups',
+          style: Theme.of(context)
+              .textTheme
+              .titleLarge
+              ?.copyWith(color: cs.onSurface),
         ),
-      ),
-    );
-  }
-}
-
-class _DailyGoalCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final totals = s.totals;
-    final log = s.dayLog;
-
-    final goal = log.calorieGoal;
-    final eaten = totals.calories;
-    final left = (goal - eaten).clamp(0, 999999);
-
-    double pctNum(num v, num g) => g <= 0 ? 0 : (v / g).clamp(0, 1).toDouble();
-
-    final calPct = pctNum(eaten, goal);
-    final pPct = pctNum(totals.protein, log.proteinGoal);
-    final cPct = pctNum(totals.carbs, log.carbsGoal);
-    final fPct = pctNum(totals.fat, log.fatGoal);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 86,
-              height: 86,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    value: calPct,
-                    strokeWidth: 10,
-                    strokeCap: StrokeCap.round,
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: List.generate(widget.goal, (i) {
+            final filled = i < widget.cupsDrunk;
+            return GestureDetector(
+              onTap: () {
+                // Update your state here
+                // Example: Provider.of<AppState>(context, listen: false).setWaterCups(i + 1);
+                if (widget.onUpdate != null) widget.onUpdate!();
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: filled ? Colors.cyan : cs.surfaceVariant,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: filled
+                      ? [
+                          BoxShadow(
+                              color: Colors.cyan.withOpacity(0.4),
+                              blurRadius: 8)
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    '${i + 1}',
+                    style: TextStyle(
+                      color: filled ? Colors.white : cs.onSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('$left',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w800)),
-                      const Text('left', style: TextStyle(fontSize: 12)),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Today', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 4),
-                  Text('Goal: $goal • Eaten: $eaten',
-                      style: Theme.of(context).textTheme.bodySmall),
-                  const SizedBox(height: 10),
-                  _MacroProgress(
-                      label: 'Protein',
-                      current: totals.protein,
-                      goal: log.proteinGoal,
-                      value: pPct),
-                  const SizedBox(height: 6),
-                  _MacroProgress(
-                      label: 'Carbs',
-                      current: totals.carbs,
-                      goal: log.carbsGoal,
-                      value: cPct),
-                  const SizedBox(height: 6),
-                  _MacroProgress(
-                      label: 'Fat',
-                      current: totals.fat,
-                      goal: log.fatGoal,
-                      value: fPct),
-                ],
-              ),
-            )
-          ],
+            );
+          }),
         ),
-      ),
-    );
-  }
-}
-
-class _MacroProgress extends StatelessWidget {
-  final String label;
-  final double current;
-  final double goal;
-  final double value;
-
-  const _MacroProgress({
-    required this.label,
-    required this.current,
-    required this.goal,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cur = current.isFinite ? current : 0;
-    final g = goal.isFinite && goal > 0 ? goal : 1;
-
-    return Row(
-      children: [
-        SizedBox(
-            width: 58,
-            child: Text(label, style: Theme.of(context).textTheme.bodySmall)),
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(minHeight: 10, value: value),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text('${cur.toStringAsFixed(0)}/${g.toStringAsFixed(0)}g',
-            style: Theme.of(context).textTheme.bodySmall),
       ],
-    );
-  }
-}
-
-class _MealSection extends StatelessWidget {
-  final MealType meal;
-  const _MealSection({required this.meal});
-
-  String _mealLabel(MealType m) => switch (m) {
-        MealType.breakfast => 'Breakfast',
-        MealType.lunch => 'Lunch',
-        MealType.dinner => 'Dinner',
-        MealType.snack => 'Snack',
-      };
-
-  IconData _mealIcon(MealType m) => switch (m) {
-        MealType.breakfast => Icons.free_breakfast,
-        MealType.lunch => Icons.lunch_dining,
-        MealType.dinner => Icons.dinner_dining,
-        MealType.snack => Icons.icecream,
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final entries = s.todaysEntries.where((e) => e.meal == meal).toList();
-    if (entries.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Card(
-          child: ListTile(
-            leading: Icon(_mealIcon(meal)),
-            title: Text(_mealLabel(meal),
-                style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle:
-                Text('${entries.length} item${entries.length == 1 ? '' : 's'}'),
-          ),
-        ),
-        const SizedBox(height: 6),
-        ...entries.map((e) =>
-            _EntryTile(entryId: e.id, meal: e.meal, servings: e.servings)),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-}
-
-class _EntryTile extends StatelessWidget {
-  final String entryId;
-  final MealType meal;
-  final double servings;
-
-  const _EntryTile({
-    required this.entryId,
-    required this.meal,
-    required this.servings,
-  });
-
-  String _mealLabel(MealType m) => switch (m) {
-        MealType.breakfast => 'Breakfast',
-        MealType.lunch => 'Lunch',
-        MealType.dinner => 'Dinner',
-        MealType.snack => 'Snack',
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final entry = s.todaysEntries.firstWhere((e) => e.id == entryId);
-    final food = s.allFoods.firstWhere((f) => f.id == entry.foodId);
-
-    return Dismissible(
-      key: ValueKey(entryId),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => context.read<AppState>().removeEntry(entryId),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete),
-      ),
-      child: Card(
-        child: ListTile(
-          title: Text(food.name,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: Text(
-            '${_mealLabel(meal)} • ${servings.toStringAsFixed(servings % 1 == 0 ? 0 : 2)} × ${food.servingLabel}',
-          ),
-          trailing: Text('${(food.calories * servings).round()} cal'),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => ServingPage(
-                meal: entry.meal,
-                food: food,
-                editingEntryId: entry.id,
-                initialServings: entry.servings,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

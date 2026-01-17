@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,18 +22,15 @@ class ProgressPage extends StatelessWidget {
       final key = dayKeyOf(d);
       final totals = s.totalsForDayKey(key);
       return _DayBar(
-        date: d,
-        dayKey: key,
-        label: _dow(d.weekday),
-        calories: totals.calories,
-      );
+          date: d,
+          dayKey: key,
+          label: _dow(d.weekday),
+          calories: totals.calories);
     });
 
     final weeklyTotal = days.fold<int>(0, (sum, x) => sum + x.calories);
     final weeklyAvg = (weeklyTotal / 7).round();
     final streak = s.currentStreak(from: today);
-
-    // Goal line: current day's goal (simple v1)
     final goal = s.dayLog.calorieGoal;
 
     return ListView(
@@ -40,49 +39,68 @@ class ProgressPage extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _StatCard(
-                title: 'Current streak',
-                value: '$streak days',
-                subtitle: 'Days with food logged',
-              ),
-            ),
-            const SizedBox(width: 10),
+                child: GlassCard(
+                    child: _StatContent(
+                        title: 'Current streak',
+                        value: '$streak days',
+                        subtitle: 'Days with food logged'))),
+            const SizedBox(width: 12),
             Expanded(
-              child: _StatCard(
-                title: 'Weekly avg',
-                value: '$weeklyAvg',
-                subtitle: 'Calories/day',
-              ),
-            ),
+                child: GlassCard(
+                    child: _StatContent(
+                        title: 'Weekly avg',
+                        value: '$weeklyAvg',
+                        subtitle: 'Calories/day'))),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Text('Last 7 days', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        _BarChartCard(
-          days: days,
-          goal: goal,
-          today: today,
-          onTapDay: (d) => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => DayLogPage(date: d)),
+        GlassCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Calories', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text('Goal line: $goal cal',
+                  style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 200,
+                child: _BarChart(
+                    days: days,
+                    goal: goal,
+                    today: today,
+                    onTapDay: (d) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => DayLogPage(date: d)));
+                    }),
+              ),
+              const SizedBox(height: 8),
+              Text('Tap a bar to open that day’s log.',
+                  style: Theme.of(context).textTheme.bodySmall),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        ...days.map((x) {
-          final label = '${x.label} ${x.date.month}/${x.date.day}';
-          return Card(
-            child: ListTile(
-              title: Text(label),
-              trailing: Text('${x.calories} cal',
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => DayLogPage(date: x.date)),
+        const SizedBox(height: 16),
+        ...days.map((d) {
+          final label = '${d.label} ${d.date.month}/${d.date.day}';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: GlassCard(
+              child: ListTile(
+                title: Text(label),
+                trailing: Text('${d.calories} cal',
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => DayLogPage(date: d.date))),
               ),
             ),
           );
         }),
-        const SizedBox(height: 10),
-        Card(
+        const SizedBox(height: 8),
+        GlassCard(
           child: ListTile(
             title: const Text('Weekly total'),
             trailing: Text('$weeklyTotal cal',
@@ -110,155 +128,157 @@ class _DayBar {
   final String dayKey;
   final String label;
   final int calories;
-  const _DayBar({
-    required this.date,
-    required this.dayKey,
-    required this.label,
-    required this.calories,
-  });
+
+  const _DayBar(
+      {required this.date,
+      required this.dayKey,
+      required this.label,
+      required this.calories});
 }
 
-class _StatCard extends StatelessWidget {
+class _StatContent extends StatelessWidget {
   final String title;
   final String value;
   final String subtitle;
 
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.subtitle,
-  });
+  const _StatContent(
+      {required this.title, required this.value, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 6),
-            Text(value,
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 4),
-            Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 6),
+          Text(value,
+              style:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+        ],
       ),
     );
   }
 }
 
-class _BarChartCard extends StatelessWidget {
+Widget GlassCard({
+  required Widget child,
+  EdgeInsets padding = const EdgeInsets.all(0),
+  double borderRadius = 20,
+  double blur = 12,
+  double opacity = 0.12,
+}) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(borderRadius),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor.withOpacity(opacity),
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4)),
+          ],
+        ),
+        child: child,
+      ),
+    ),
+  );
+}
+
+class _BarChart extends StatelessWidget {
   final List<_DayBar> days;
   final int goal;
   final DateTime today;
-  final void Function(DateTime day) onTapDay;
+  final void Function(DateTime) onTapDay;
 
-  const _BarChartCard({
-    required this.days,
-    required this.goal,
-    required this.today,
-    required this.onTapDay,
-  });
+  const _BarChart(
+      {required this.days,
+      required this.goal,
+      required this.today,
+      required this.onTapDay});
 
   @override
   Widget build(BuildContext context) {
-    final maxVal =
-        days.map((d) => d.calories).fold<int>(0, (m, v) => v > m ? v : m);
-    final yMax = _niceMax([maxVal, goal].reduce((a, b) => a > b ? a : b));
+    final maxVal = days.map((d) => d.calories).fold(0, (m, v) => v > m ? v : m);
+    final yMax = _niceMax(maxVal > goal ? maxVal : goal);
     final goalPct = yMax == 0 ? 0.0 : (goal / yMax).clamp(0.0, 1.0);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const chartH = 150.0;
+        final lineY = chartH * (1 - goalPct);
+
+        return Stack(
           children: [
-            Text('Calories', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 6),
-            Text('Goal line: $goal cal',
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 180,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    width: 38,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('$yMax',
-                            style: Theme.of(context).textTheme.bodySmall),
-                        Text('${(yMax * 0.5).round()}',
-                            style: Theme.of(context).textTheme.bodySmall),
-                        const Text('0'),
-                      ],
+            Positioned(
+              left: 0,
+              right: 0,
+              top: lineY,
+              child: Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(999))),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: chartH + 40,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 40,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('$yMax'),
+                          Text('${(yMax * 0.5).round()}'),
+                          const Text('0')
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, c) {
-                        const chartH = 150.0;
-                        final lineY = chartH * (1 - goalPct);
-
-                        return Stack(
-                          children: [
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              top: lineY,
-                              child: _GoalLine(),
-                            ),
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: SizedBox(
-                                height: chartH + 30,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: days.map((d) {
-                                    final pct = yMax == 0
-                                        ? 0.0
-                                        : (d.calories / yMax).clamp(0.0, 1.0);
-                                    final isToday = _isSameDay(d.date, today);
-
-                                    return Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4),
-                                        child: _Bar(
-                                          label: d.label,
-                                          value: d.calories,
-                                          pct: pct,
-                                          isToday: isToday,
-                                          onTap: () => onTapDay(d.date),
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Row(
+                        children: days.map((d) {
+                          final pct = yMax == 0
+                              ? 0.0
+                              : (d.calories / yMax).clamp(0.0, 1.0);
+                          final isToday = _isSameDay(d.date, today);
+                          return Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: _Bar(
+                                label: d.label,
+                                value: d.calories,
+                                pct: pct,
+                                isToday: isToday,
+                                onTap: () => onTapDay(d.date),
                               ),
                             ),
-                          ],
-                        );
-                      },
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text('Tap a bar to open that day’s log.',
-                style: Theme.of(context).textTheme.bodySmall),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -267,7 +287,7 @@ class _BarChartCard extends StatelessWidget {
 
   static int _niceMax(int v) {
     if (v <= 0) return 0;
-    final steps = [
+    const steps = [
       250,
       500,
       750,
@@ -280,24 +300,8 @@ class _BarChartCard extends StatelessWidget {
       4000,
       5000
     ];
-    for (final s in steps) {
-      if (v <= s) return s;
-    }
+    for (final s in steps) if (v <= s) return s;
     return ((v + 999) ~/ 1000) * 1000;
-  }
-}
-
-class _GoalLine extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      height: 2,
-      decoration: BoxDecoration(
-        color: cs.secondary,
-        borderRadius: BorderRadius.circular(999),
-      ),
-    );
   }
 }
 
@@ -308,20 +312,18 @@ class _Bar extends StatelessWidget {
   final bool isToday;
   final VoidCallback onTap;
 
-  const _Bar({
-    required this.label,
-    required this.value,
-    required this.pct,
-    required this.isToday,
-    required this.onTap,
-  });
+  const _Bar(
+      {required this.label,
+      required this.value,
+      required this.pct,
+      required this.isToday,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
-    final barColor = isToday ? cs.primary : cs.primaryContainer;
-    final textStyle = Theme.of(context).textTheme.bodySmall;
+    final barColor =
+        isToday ? cs.primary : cs.primaryContainer.withOpacity(0.9);
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -329,19 +331,15 @@ class _Bar extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(
-            value == 0 ? '' : '$value',
-            style: textStyle?.copyWith(
-                fontWeight: isToday ? FontWeight.w700 : FontWeight.w400),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          Text(value == 0 ? '' : '$value',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: isToday ? FontWeight.w700 : FontWeight.w400)),
           const SizedBox(height: 6),
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 350),
+                duration: const Duration(milliseconds: 400),
                 curve: Curves.easeOutCubic,
                 height: 150 * pct,
                 decoration: BoxDecoration(
@@ -355,7 +353,7 @@ class _Bar extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(label,
-              style: textStyle?.copyWith(
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontWeight: isToday ? FontWeight.w700 : FontWeight.w400)),
         ],
       ),

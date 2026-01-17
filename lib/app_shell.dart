@@ -14,52 +14,51 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  int index = 0;
+  var _index = 0;
+
+  static const _pages = [
+    TodayPage(),
+    LogFoodPage(),
+    ProgressPage(),
+  ];
+
+  static const _titles = ['Today', 'Log Food', 'Progress'];
+
+  static const _destinations = [
+    NavigationDestination(icon: Icon(Icons.today), label: 'Today'),
+    NavigationDestination(icon: Icon(Icons.search), label: 'Log'),
+    NavigationDestination(icon: Icon(Icons.show_chart), label: 'Progress'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    const pages = [
-      TodayPage(),
-      LogFoodPage(),
-      ProgressPage(),
-    ];
-
-    const titles = ['Today', 'Log Food', 'Progress'];
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(titles[index]),
+        title: Text(_titles[_index]),
         actions: [
           IconButton(
-            tooltip: 'Settings',
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SettingsPage()),
-            ),
+            tooltip: 'Settings',
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const SettingsPage())),
           ),
-          if (index == 0)
+          if (_index == 0)
             IconButton(
-              tooltip: 'Edit goals',
               icon: const Icon(Icons.tune),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const GoalsEditorPage()),
-              ),
+              tooltip: 'Edit goals',
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const GoalsEditorPage())),
             ),
         ],
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
-        child: pages[index],
+        child: _pages[_index],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) => setState(() => index = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.today), label: 'Today'),
-          NavigationDestination(icon: Icon(Icons.search), label: 'Log'),
-          NavigationDestination(
-              icon: Icon(Icons.show_chart), label: 'Progress'),
-        ],
+        selectedIndex: _index,
+        onDestinationSelected: (i) => setState(() => _index = i),
+        destinations: _destinations,
       ),
     );
   }

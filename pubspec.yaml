@@ -27,6 +27,9 @@ dependencies:
   # ML Kit for text recognition
   google_mlkit_text_recognition: ^0.13.0
 
+  # Progress indicators
+  percent_indicator: ^4.2.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
