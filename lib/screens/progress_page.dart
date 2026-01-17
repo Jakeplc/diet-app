@@ -40,6 +40,7 @@ class ProgressPage extends StatelessWidget {
           children: [
             Expanded(
                 child: GlassCard(
+                    context: context,
                     child: _StatContent(
                         title: 'Current streak',
                         value: '$streak days',
@@ -47,6 +48,7 @@ class ProgressPage extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
                 child: GlassCard(
+                    context: context,
                     child: _StatContent(
                         title: 'Weekly avg',
                         value: '$weeklyAvg',
@@ -57,6 +59,7 @@ class ProgressPage extends StatelessWidget {
         Text('Last 7 days', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         GlassCard(
+          context: context,
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,6 +92,7 @@ class ProgressPage extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: GlassCard(
+              context: context,
               child: ListTile(
                 title: Text(label),
                 trailing: Text('${d.calories} cal',
@@ -101,6 +105,7 @@ class ProgressPage extends StatelessWidget {
         }),
         const SizedBox(height: 8),
         GlassCard(
+          context: context,
           child: ListTile(
             title: const Text('Weekly total'),
             trailing: Text('$weeklyTotal cal',
@@ -165,6 +170,7 @@ class _StatContent extends StatelessWidget {
 }
 
 Widget GlassCard({
+  required BuildContext context,
   required Widget child,
   EdgeInsets padding = const EdgeInsets.all(0),
   double borderRadius = 20,

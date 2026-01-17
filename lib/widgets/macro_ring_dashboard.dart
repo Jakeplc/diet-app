@@ -13,7 +13,7 @@ class MacroRingDashboard extends StatelessWidget {
     final dayLog = state.dayLog;
 
     // Calculate totals
-    final totals = state.macroTotalsForDay(dayLog.dayKey);
+    final totals = state.totalsForDayKey(dayLog.dayKey);
 
     final caloriesLeft = dayLog.calorieGoal - totals.calories;
     final calPct = (totals.calories / dayLog.calorieGoal).clamp(0.0, 1.0);

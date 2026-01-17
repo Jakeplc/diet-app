@@ -9,6 +9,7 @@ import '../state/subscription_state.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/macro_ring_dashboard.dart';
 import '../widgets/step_counter_widget.dart';
+import '../widgets/wave_painter.dart';
 import 'add_food_flow/select_meal_page.dart';
 import 'add_food_flow/serving_page.dart';
 import 'glp1/glp1_tracker_page.dart';
@@ -22,8 +23,10 @@ class TodayPage extends StatelessWidget {
     final state = context.watch<AppState>();
     final cs = Theme.of(context).colorScheme;
 
-    final caloriesLeft = state.caloriesGoal - state.caloriesEaten;
-    final progress = (state.caloriesEaten / state.caloriesGoal).clamp(0.0, 1.0);
+    final totals = state.totals;
+    final caloriesLeft = state.dayLog.calorieGoal - totals.calories;
+    final progress =
+        (totals.calories / state.dayLog.calorieGoal).clamp(0.0, 1.0);
 
     return Container(
       decoration: BoxDecoration(
@@ -71,23 +74,23 @@ class TodayPage extends StatelessWidget {
                 _QuickMealCard(
                     icon: Icons.free_breakfast,
                     label: 'Breakfast',
-                    colorStart: Colors.orange.shade300,
-                    colorEnd: Colors.deepOrange.shade600),
+                    colorStart: Colors.orange[300]!,
+                    colorEnd: Colors.deepOrange[600]!),
                 _QuickMealCard(
                     icon: Icons.lunch_dining,
                     label: 'Lunch',
-                    colorStart: Colors.green.shade300,
-                    colorEnd: Colors.teal.shade600),
+                    colorStart: Colors.green[300]!,
+                    colorEnd: Colors.teal[600]!),
                 _QuickMealCard(
                     icon: Icons.dinner_dining,
                     label: 'Dinner',
-                    colorStart: Colors.purple.shade300,
-                    colorEnd: Colors.indigo.shade600),
+                    colorStart: Colors.purple[300]!,
+                    colorEnd: Colors.indigo[600]!),
                 _QuickMealCard(
                     icon: Icons.icecream,
                     label: 'Snack',
-                    colorStart: Colors.pink.shade300,
-                    colorEnd: Colors.redAccent.shade700),
+                    colorStart: Colors.pink[300]!,
+                    colorEnd: Colors.red[700]!),
               ],
             ),
 
@@ -100,13 +103,16 @@ class TodayPage extends StatelessWidget {
             GlassCard(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Water Intake',
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 16),
-                  _AnimatedWaterTracker(
-                      cupsDrunk: state.waterCups,
-                      goal: 8), // Replace with your state
+                  WaveLiquidContainer(
+                    fillPercentage: state.dayLog.waterCups / 8.0,
+                    current: state.dayLog.waterCups,
+                    goal: 8,
+                  ),
                 ],
               ),
             ),
@@ -114,7 +120,7 @@ class TodayPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Empty state or logged foods list...
-            if (state.foodEntries.isEmpty)
+            if (state.todaysEntries.isEmpty)
               Center(
                 child: Column(
                   children: [
@@ -226,17 +232,14 @@ class _AnimatedWaterTrackerState extends State<_AnimatedWaterTracker> {
                     BorderRadius.vertical(bottom: Radius.circular(24)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 800),
-                  curve: Curves.easeOutCubicEmphasized,
+                  curve: Curves.easeOutCubic,
                   height: 180 * progress.clamp(0.0, 1.0),
                   width: double.infinity,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
-                      colors: [
-                        Colors.cyan.shade600,
-                        Colors.blueAccent.shade300
-                      ],
+                      colors: [Colors.cyan[600]!, Colors.blue[300]!],
                       stops: const [0.0, 1.0],
                     ),
                   ),
