@@ -1,0 +1,37 @@
+name: diet_app
+description: A Flutter diet tracking app with macro tracking and daily logging.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  provider: ^6.0.0
+
+  # Local persistence
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Date/time formatting
+  intl: ^0.19.0
+
+  # Image picking
+  image_picker: ^1.0.7
+
+  # ML Kit for text recognition
+  google_mlkit_text_recognition: ^0.13.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

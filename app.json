@@ -1,0 +1,29 @@
+{
+    "expo": {
+        "name": "diet_app",
+        "slug": "diet-app",
+        "version": "1.0.0",
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "ios": {
+            "supportsTabletMode": true,
+            "bundleIdentifier": "com.jakej.dietapp"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "package": "com.jakej.dietapp"
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        },
+        "scheme": "diet-app",
+        "platforms": [
+            "ios",
+            "android"
+        ]
+    }
+}
