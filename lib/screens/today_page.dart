@@ -3,8 +3,11 @@ import 'package:provider/provider.dart';
 
 import '../models/food_entry.dart';
 import '../state/app_state.dart';
+import '../state/subscription_state.dart';
 import 'add_food_flow/select_meal_page.dart';
 import 'add_food_flow/serving_page.dart';
+import 'glp1/glp1_tracker_page.dart';
+import 'paywall/paywall_page.dart';
 
 class TodayPage extends StatelessWidget {
   const TodayPage({super.key});
@@ -28,14 +31,24 @@ class TodayPage extends StatelessWidget {
           crossAxisSpacing: 10,
           childAspectRatio: 2.6,
           children: const [
-            _MealTile(meal: MealType.breakfast, icon: Icons.free_breakfast, label: 'Breakfast'),
-            _MealTile(meal: MealType.lunch, icon: Icons.lunch_dining, label: 'Lunch'),
-            _MealTile(meal: MealType.dinner, icon: Icons.dinner_dining, label: 'Dinner'),
-            _MealTile(meal: MealType.snack, icon: Icons.icecream, label: 'Snack'),
+            _MealTile(
+                meal: MealType.breakfast,
+                icon: Icons.free_breakfast,
+                label: 'Breakfast'),
+            _MealTile(
+                meal: MealType.lunch, icon: Icons.lunch_dining, label: 'Lunch'),
+            _MealTile(
+                meal: MealType.dinner,
+                icon: Icons.dinner_dining,
+                label: 'Dinner'),
+            _MealTile(
+                meal: MealType.snack, icon: Icons.icecream, label: 'Snack'),
           ],
         ),
         const SizedBox(height: 12),
         const _WaterCard(),
+        const SizedBox(height: 12),
+        _Glp1Tile(),
         const SizedBox(height: 12),
         Text('Today', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
@@ -71,7 +84,8 @@ class _MealTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: () {
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => SelectMealPage(preselected: meal)),
+            MaterialPageRoute(
+                builder: (_) => SelectMealPage(preselected: meal)),
           );
         },
         child: Padding(
@@ -109,7 +123,8 @@ class _WaterCard extends StatelessWidget {
               children: [
                 Text('Water', style: Theme.of(context).textTheme.titleMedium),
                 const Spacer(),
-                Text('$cups/8 cups', style: Theme.of(context).textTheme.bodyMedium),
+                Text('$cups/8 cups',
+                    style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
             const SizedBox(height: 10),
@@ -121,7 +136,8 @@ class _WaterCard extends StatelessWidget {
                 return FilterChip(
                   label: Text('${i + 1}'),
                   selected: selected,
-                  onSelected: (v) => context.read<AppState>().setWaterCups(v ? i + 1 : i),
+                  onSelected: (v) =>
+                      context.read<AppState>().setWaterCups(v ? i + 1 : i),
                 );
               }),
             ),
@@ -169,7 +185,9 @@ class _DailyGoalCard extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('$left', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                      Text('$left',
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w800)),
                       const Text('left', style: TextStyle(fontSize: 12)),
                     ],
                   ),
@@ -183,13 +201,26 @@ class _DailyGoalCard extends StatelessWidget {
                 children: [
                   Text('Today', style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 4),
-                  Text('Goal: $goal • Eaten: $eaten', style: Theme.of(context).textTheme.bodySmall),
+                  Text('Goal: $goal • Eaten: $eaten',
+                      style: Theme.of(context).textTheme.bodySmall),
                   const SizedBox(height: 10),
-                  _MacroProgress(label: 'Protein', current: totals.protein, goal: log.proteinGoal, value: pPct),
+                  _MacroProgress(
+                      label: 'Protein',
+                      current: totals.protein,
+                      goal: log.proteinGoal,
+                      value: pPct),
                   const SizedBox(height: 6),
-                  _MacroProgress(label: 'Carbs', current: totals.carbs, goal: log.carbsGoal, value: cPct),
+                  _MacroProgress(
+                      label: 'Carbs',
+                      current: totals.carbs,
+                      goal: log.carbsGoal,
+                      value: cPct),
                   const SizedBox(height: 6),
-                  _MacroProgress(label: 'Fat', current: totals.fat, goal: log.fatGoal, value: fPct),
+                  _MacroProgress(
+                      label: 'Fat',
+                      current: totals.fat,
+                      goal: log.fatGoal,
+                      value: fPct),
                 ],
               ),
             )
@@ -220,7 +251,9 @@ class _MacroProgress extends StatelessWidget {
 
     return Row(
       children: [
-        SizedBox(width: 58, child: Text(label, style: Theme.of(context).textTheme.bodySmall)),
+        SizedBox(
+            width: 58,
+            child: Text(label, style: Theme.of(context).textTheme.bodySmall)),
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(999),
@@ -228,7 +261,8 @@ class _MacroProgress extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text('${cur.toStringAsFixed(0)}/${g.toStringAsFixed(0)}g', style: Theme.of(context).textTheme.bodySmall),
+        Text('${cur.toStringAsFixed(0)}/${g.toStringAsFixed(0)}g',
+            style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }
@@ -264,12 +298,15 @@ class _MealSection extends StatelessWidget {
         Card(
           child: ListTile(
             leading: Icon(_mealIcon(meal)),
-            title: Text(_mealLabel(meal), style: const TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text('${entries.length} item${entries.length == 1 ? '' : 's'}'),
+            title: Text(_mealLabel(meal),
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle:
+                Text('${entries.length} item${entries.length == 1 ? '' : 's'}'),
           ),
         ),
         const SizedBox(height: 6),
-        ...entries.map((e) => _EntryTile(entryId: e.id, meal: e.meal, servings: e.servings)),
+        ...entries.map((e) =>
+            _EntryTile(entryId: e.id, meal: e.meal, servings: e.servings)),
         const SizedBox(height: 10),
       ],
     );
@@ -311,7 +348,8 @@ class _EntryTile extends StatelessWidget {
       ),
       child: Card(
         child: ListTile(
-          title: Text(food.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+          title: Text(food.name,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
           subtitle: Text(
             '${_mealLabel(meal)} • ${servings.toStringAsFixed(servings % 1 == 0 ? 0 : 2)} × ${food.servingLabel}',
           ),
@@ -327,6 +365,45 @@ class _EntryTile extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Glp1Tile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final sub = context.watch<SubscriptionState>();
+    final locked = !sub.canUseGlp1;
+
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.vaccines),
+        title: const Text('GLP-1 Tracker',
+            style: TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(
+          locked
+              ? '7-day trial available • Tap to unlock'
+              : (sub.trialActive
+                  ? 'Trial: ${sub.trialDaysLeft} day(s) left'
+                  : 'Dose log • Side effects • Notes'),
+        ),
+        trailing: Icon(locked ? Icons.lock : Icons.chevron_right),
+        onTap: () {
+          if (sub.canUseGlp1) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => Glp1TrackerPage(),
+              ),
+            );
+          } else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PaywallPage(source: 'glp1'),
+              ),
+            );
+          }
+        },
       ),
     );
   }
