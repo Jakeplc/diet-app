@@ -18,8 +18,10 @@ class SubscriptionState extends ChangeNotifier {
   bool get isPro => tier == 'pro';
 
   Plan get selectedPlan {
-    final s = _box.get(_kSelectedPlan, defaultValue: Plan.premiumMonthly.name) as String;
-    return Plan.values.firstWhere((p) => p.name == s, orElse: () => Plan.premiumMonthly);
+    final s = _box.get(_kSelectedPlan, defaultValue: Plan.premiumMonthly.name)
+        as String;
+    return Plan.values
+        .firstWhere((p) => p.name == s, orElse: () => Plan.premiumMonthly);
   }
 
   bool get hasTrialAvailable => _box.get(_kTrialStart) == null;
@@ -40,9 +42,11 @@ class SubscriptionState extends ChangeNotifier {
 
   bool get trialActive => trialStart != null && trialDaysLeft > 0;
 
-  /// GLP-1 gating:
-  /// - allowed if Premium/Pro OR trialActive
+  /// GLP-1 gating: allowed if Premium/Pro OR trialActive
   bool get canUseGlp1 => isPremium || isPro || trialActive;
+
+  /// Barcode Scanner + Online Database gating: allowed if Premium/Pro OR trialActive
+  bool get canUseBarcode => isPremium || isPro || trialActive;
 
   static Future<SubscriptionState> init() async {
     final s = SubscriptionState._();

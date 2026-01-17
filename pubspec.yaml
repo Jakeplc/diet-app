@@ -30,6 +30,15 @@ dependencies:
   # Progress indicators
   percent_indicator: ^4.2.3
 
+  # Barcode scanner (premium feature)
+  mobile_scanner: ^5.2.1
+
+  # Open Food Facts API (online nutrition database)
+  openfoodfacts: ^2.6.0
+
+  # HTTP client for API calls
+  http: ^1.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

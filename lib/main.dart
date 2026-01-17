@@ -16,6 +16,7 @@ import 'services/prefs_store.dart';
 
 import 'state/app_state.dart';
 import 'state/subscription_state.dart';
+import 'state/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,11 +44,15 @@ Future<void> main() async {
 
   final subState = await SubscriptionState.init();
 
+  final themeProvider = ThemeProvider();
+  await themeProvider.init();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => appState),
         ChangeNotifierProvider(create: (_) => subState),
+        ChangeNotifierProvider(create: (_) => themeProvider),
       ],
       child: const DietApp(),
     ),
@@ -59,10 +64,14 @@ class DietApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+
     return MaterialApp(
       title: 'Diet App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const AppShell(),
     );
   }
