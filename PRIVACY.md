@@ -8,7 +8,7 @@ This guide explains how to keep your Diet App code private and secure.
 
 If your repository is currently public, you can make it private:
 
-1. Go to your repository on GitHub: `https://github.com/Jakeplc/diet-app`
+1. Go to your repository on GitHub: `https://github.com/your-username/your-repo-name`
 2. Click on **Settings** (tab at the top of the repository page)
 3. Scroll down to the **Danger Zone** section at the bottom
 4. Click **Change visibility**
@@ -143,7 +143,7 @@ If you want to work on this project:
   
 - **Clone**: Downloads code to your computer
   ```bash
-  git clone https://github.com/Jakeplc/diet-app.git
+  git clone https://github.com/your-username/your-repo-name.git
   ```
   - Your local copy is always private
   - Just don't push to a public repository
