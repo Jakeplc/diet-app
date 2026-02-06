@@ -44,3 +44,33 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Sensitive files and secrets (DO NOT COMMIT)
+.env
+.env.local
+.env.*.local
+secrets.json
+secrets.dart
+credentials.json
+firebase_options.dart
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
+*.p12
+*.key
+*.pem
+*.mobileprovision
+**/secrets/
+**/credentials/
+
+# Local configuration and notes
+notes.txt
+TODO.md
+config.local.dart
+local_config.dart
+
+# Database files (if any)
+*.db
+*.sqlite
+*.sqlite3

@@ -2,6 +2,16 @@
 
 A Flutter diet tracking application for logging meals, tracking macros (protein, carbs, fat), and monitoring daily calorie intake.
 
+## 🔒 Keeping Your Code Private
+
+Want to keep this repository private? See **[PRIVACY.md](PRIVACY.md)** for a comprehensive guide on:
+- Making your repository private on GitHub
+- Protecting sensitive information and secrets
+- Security best practices for Flutter projects
+- Managing local data privacy
+
+All user data in this app is stored **locally only** (Hive database) - no data is sent to external servers.
+
 ## Features
 
 - **Daily tracking**: Log meals throughout the day (breakfast, lunch, dinner, snack)
