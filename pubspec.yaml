@@ -39,6 +39,9 @@ dependencies:
   # HTTP client for API calls
   http: ^1.2.0
 
+  # In-app purchases
+  purchases_flutter: ^9.10.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

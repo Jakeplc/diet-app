@@ -47,7 +47,7 @@ class MacroRingDashboard extends StatelessWidget {
                 Text(
                   'left',
                   style: TextStyle(
-                      fontSize: 16, color: cs.onBackground.withOpacity(0.7)),
+                      fontSize: 16, color: cs.onSurface.withOpacity(0.7)),
                 ),
               ],
             ),
@@ -117,7 +117,7 @@ class _MacroRing extends StatelessWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           progressColor: color,
-          backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           animation: true,
           circularStrokeCap: CircularStrokeCap.round,
         ),

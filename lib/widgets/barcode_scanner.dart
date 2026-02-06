@@ -65,7 +65,7 @@ class BarcodeScanner extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.camera_alt, color: Colors.white, size: 24),
+                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -89,8 +89,8 @@ class BarcodeScanner extends StatelessWidget {
                     ),
                   ),
                   if (isLocked)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8),
                       child: LockedCrownBadge(size: 28),
                     ),
                 ],
@@ -104,7 +104,7 @@ class BarcodeScanner extends StatelessWidget {
                 ),
                 child: Text(
                   isLocked
-                      ? '7-day trial available • Unlock for $4.99/month'
+                      ? '7-day trial available • Unlock for \$4.99/month'
                       : 'Scan any product barcode to fetch nutrition data',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: cs.primary,
@@ -179,7 +179,7 @@ class BarcodeResultCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(Icons.check_circle, color: Colors.green, size: 32),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 32),
                 ],
               ),
               const SizedBox(height: 16),

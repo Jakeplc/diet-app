@@ -1,4 +1,4 @@
-import Flutter
+ColorPicker(/*@START_MENU_TOKEN@*/"Title"/*@END_MENU_TOKEN@*/, selection: /*@START_MENU_TOKEN@*/.constant(.red)/*@END_MENU_TOKEN@*/);import Flutter
 import UIKit
 import XCTest
 

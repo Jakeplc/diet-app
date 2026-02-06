@@ -46,12 +46,12 @@ class _Glp1TrackerPageState extends State<Glp1TrackerPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Card(
+          const Card(
             child: Padding(
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text('Dose log + injection dates + side effects', style: TextStyle(fontWeight: FontWeight.w800)),
                   SizedBox(height: 6),
                   Text('Quick, simple tracking so you don\'t lose your schedule or notes.'),

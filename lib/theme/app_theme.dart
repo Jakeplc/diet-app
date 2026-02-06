@@ -35,7 +35,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         elevation: 6,
       ),
-      appBarTheme: AppBarThemeData(
+      appBarTheme: const AppBarThemeData(
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,

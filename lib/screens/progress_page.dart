@@ -306,7 +306,9 @@ class _BarChart extends StatelessWidget {
       4000,
       5000
     ];
-    for (final s in steps) if (v <= s) return s;
+    for (final s in steps) {
+      if (v <= s) return s;
+    }
     return ((v + 999) ~/ 1000) * 1000;
   }
 }

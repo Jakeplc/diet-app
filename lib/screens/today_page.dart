@@ -1,17 +1,13 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/food_entry.dart';
 import '../state/app_state.dart';
 import '../state/subscription_state.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/macro_ring_dashboard.dart';
 import '../widgets/step_counter_widget.dart';
 import '../widgets/wave_painter.dart';
-import 'add_food_flow/select_meal_page.dart';
-import 'add_food_flow/serving_page.dart';
 import 'glp1/glp1_tracker_page.dart';
 import 'paywall/paywall_page.dart';
 
@@ -33,7 +29,7 @@ class TodayPage extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [cs.background, cs.surface],
+          colors: [cs.surface, cs.surface],
         ),
       ),
       child: SafeArea(
@@ -56,7 +52,7 @@ class TodayPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Step Counter
-            GlassCard(child: const StepCounterWidget()),
+            const GlassCard(child: StepCounterWidget()),
 
             const SizedBox(height: 24),
 
@@ -127,7 +123,7 @@ class TodayPage extends StatelessWidget {
                     Icon(Icons.restaurant_menu,
                         size: 80, color: cs.primary.withOpacity(0.5)),
                     const SizedBox(height: 16),
-                    Text('No foods logged yet.\nAdd your first meal!',
+                    const Text('No foods logged yet.\nAdd your first meal!',
                         textAlign: TextAlign.center),
                   ],
                 ),
@@ -164,7 +160,7 @@ class _QuickMealCard extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [colorStart, colorEnd]),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
                 color: Colors.black12, blurRadius: 8, offset: Offset(0, 4))
           ],
@@ -229,7 +225,7 @@ class _AnimatedWaterTrackerState extends State<_AnimatedWaterTracker> {
               ),
               ClipRRect(
                 borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(24)),
+                    const BorderRadius.vertical(bottom: Radius.circular(24)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 800),
                   curve: Curves.easeOutCubic,
@@ -273,7 +269,7 @@ class _AnimatedWaterTrackerState extends State<_AnimatedWaterTracker> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: filled ? Colors.cyan : cs.surfaceVariant,
+                  color: filled ? Colors.cyan : cs.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: filled
                       ? [
@@ -324,13 +320,13 @@ class _Glp1Tile extends StatelessWidget {
           if (sub.canUseGlp1) {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => Glp1TrackerPage(),
+                builder: (_) => const Glp1TrackerPage(),
               ),
             );
           } else {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => PaywallPage(source: 'glp1'),
+                builder: (_) => const PaywallPage(source: 'glp1'),
               ),
             );
           }

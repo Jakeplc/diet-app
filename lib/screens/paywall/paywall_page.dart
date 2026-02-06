@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
+import 'purchases_bridge.dart'
+  if (dart.library.html) 'purchases_bridge_stub.dart';
 
 class PaywallPage extends StatefulWidget {
   final String source; // e.g., "glp1", "barcode", "settings"
@@ -37,25 +38,26 @@ class _PaywallPageState extends State<PaywallPage> {
 
   Future<void> _buy(Package package) async {
     try {
-      final info = await Purchases.purchasePackage(package);
-      _customerInfo = info;
+      // TODO: Implement purchases_flutter integration
+      // final info = await Purchases.purchasePackage(package);
+      // _customerInfo = info;
 
       if (!mounted) return;
-      final unlocked = info.entitlements.all['premium']?.isActive == true ||
-          info.entitlements.active.isNotEmpty;
+      // final unlocked = info.entitlements.all['premium']?.isActive == true ||
+      //     info.entitlements.active.isNotEmpty;
 
-      if (unlocked) {
+      // if (unlocked) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Premium unlocked!')),
         );
         Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Purchase completed, but no entitlement is active.'),
-          ),
-        );
-      }
+      // } else {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(
+        //       content: Text('Purchase completed, but no entitlement is active.'),
+        //     ),
+        //   );
+      // }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,7 +106,7 @@ class _PaywallPageState extends State<PaywallPage> {
     }
 
     final current = _offerings?.current;
-    final packages = current?.availablePackages ?? const <Package>[];
+    final packages = current?.availablePackages ?? <Package>[];
     if (current == null || packages.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Go Premium')),
